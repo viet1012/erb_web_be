@@ -1,8 +1,8 @@
-package com.api.erp_be.mapper;
+package com.api.erp_be.mapper.master;
 
 import com.api.erp_be.model.SanPham;
-import com.api.erp_be.request.SanPhamRequest;
-import com.api.erp_be.response.SanPhamResponse;
+import com.api.erp_be.request.master.SanPhamRequest;
+import com.api.erp_be.response.master.SanPhamResponse;
 import org.springframework.stereotype.Component;
 
 @Component

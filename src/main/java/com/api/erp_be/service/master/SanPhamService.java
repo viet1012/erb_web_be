@@ -1,10 +1,10 @@
-package com.api.erp_be.service;
+package com.api.erp_be.service.master;
 
-import com.api.erp_be.mapper.SanPhamMapper;
+import com.api.erp_be.mapper.master.SanPhamMapper;
 import com.api.erp_be.model.SanPham;
-import com.api.erp_be.repository.SanPhamRepository;
-import com.api.erp_be.request.SanPhamRequest;
-import com.api.erp_be.response.SanPhamResponse;
+import com.api.erp_be.repository.master.SanPhamRepository;
+import com.api.erp_be.request.master.SanPhamRequest;
+import com.api.erp_be.response.master.SanPhamResponse;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

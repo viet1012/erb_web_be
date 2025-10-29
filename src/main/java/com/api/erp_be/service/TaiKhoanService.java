@@ -4,6 +4,7 @@ import com.api.erp_be.mapper.TaiKhoanMapper;
 import com.api.erp_be.model.TaiKhoan;
 import com.api.erp_be.repository.TaiKhoanRepository;
 import com.api.erp_be.request.TaiKhoanRequest;
+import com.api.erp_be.response.LoginResponse;
 import com.api.erp_be.response.TaiKhoanResponse;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -18,6 +19,17 @@ public class TaiKhoanService {
     public TaiKhoanService(TaiKhoanRepository repository, TaiKhoanMapper mapper) {
         this.repository = repository;
         this.mapper = mapper;
+    }
+
+    public LoginResponse login(String taiKhoan, String matKhau) {
+        TaiKhoan user = repository.findByTaiKhoan(taiKhoan)
+                .orElseThrow(() -> new RuntimeException("Tài khoản không tồn tại"));
+
+        if (!user.getMatKhau().equals(matKhau)) {
+            return new LoginResponse(false, "Sai mật khẩu", null, null);
+        }
+
+        return new LoginResponse(true, "Đăng nhập thành công", user.getPhanQuyen(), user.getHoTen());
     }
 
     public List<TaiKhoanResponse> getAll() {

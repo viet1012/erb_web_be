@@ -1,7 +1,7 @@
-package com.api.erp_be.controller;
-import com.api.erp_be.request.SanPhamRequest;
-import com.api.erp_be.response.SanPhamResponse;
-import com.api.erp_be.service.SanPhamService;
+package com.api.erp_be.controller.master;
+import com.api.erp_be.request.master.SanPhamRequest;
+import com.api.erp_be.response.master.SanPhamResponse;
+import com.api.erp_be.service.master.SanPhamService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

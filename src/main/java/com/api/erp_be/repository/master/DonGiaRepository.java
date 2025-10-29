@@ -1,4 +1,4 @@
-package com.api.erp_be.repository;
+package com.api.erp_be.repository.master;
 
 
 import com.api.erp_be.model.DonGia;

@@ -7,37 +7,38 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity
-@Table(name = "TaiKhoan")
+@Table(name = "\"TAI_KHOAN\"") // ⚠️ Giữ nguyên chữ HOA và thêm \"
 public class TaiKhoan {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "\"STT\"") // Nếu DB để STT hoa thì phải có "
     private Integer stt;
 
-    @Column(name = "TaiKhoan", nullable = false, unique = true)
+    @Column(name = "\"TaiKhoan\"", nullable = false, unique = true)
     private String taiKhoan;
 
-    @Column(name = "MatKhau", nullable = false)
+    @Column(name = "\"MatKhau\"", nullable = false)
     private String matKhau;
 
-    @Column(name = "HoTen")
+    @Column(name = "\"HoTen\"")
     private String hoTen;
 
-    @Column(name = "ChucVu")
+    @Column(name = "\"ChucVu\"")
     private String chucVu;
 
-    @Column(name = "PhanQuyen")
+    @Column(name = "\"PhanQuyen\"")
     private String phanQuyen;
 
-    @Column(name = "NgayTao")
+    @Column(name = "\"NgayTao\"")
     private LocalDateTime ngayTao;
 
-    @Column(name = "NguoiTao")
+    @Column(name = "\"NguoiTao\"")
     private String nguoiTao;
 
-    @Column(name = "NgayCapNhat")
+    @Column(name = "\"NgayCapNhat\"")
     private LocalDateTime ngayCapNhat;
 
-    @Column(name = "NguoiCapNhat")
+    @Column(name = "\"NguoiCapNhat\"")
     private String nguoiCapNhat;
 }

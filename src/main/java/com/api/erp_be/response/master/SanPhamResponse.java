@@ -1,4 +1,4 @@
-package com.api.erp_be.response;
+package com.api.erp_be.response.master;
 
 
 import lombok.Data;
