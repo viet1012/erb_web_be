@@ -1,44 +1,50 @@
 package com.api.erp_be.model;
 
-
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+
 import java.time.LocalDateTime;
 
 @Data
 @Entity
-@Table(name = "\"TAI_KHOAN\"") // ⚠️ Giữ nguyên chữ HOA và thêm \"
+@Table(name = "tai_khoan")
 public class TaiKhoan {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "\"STT\"") // Nếu DB để STT hoa thì phải có "
+    @Column(name = "stt")
     private Integer stt;
 
-    @Column(name = "\"TaiKhoan\"", nullable = false, unique = true)
+    @Column(name = "tai_khoan")
     private String taiKhoan;
 
-    @Column(name = "\"MatKhau\"", nullable = false)
+    @Column(name = "mat_khau")
     private String matKhau;
 
-    @Column(name = "\"HoTen\"")
+    @Column(name = "ho_ten")
     private String hoTen;
 
-    @Column(name = "\"ChucVu\"")
+    @Column(name = "chuc_vu")
     private String chucVu;
 
-    @Column(name = "\"PhanQuyen\"")
+    @Column(name = "phan_quyen")
     private String phanQuyen;
 
-    @Column(name = "\"NgayTao\"")
+    @CreationTimestamp
+    @Column(name = "ngay_tao")
     private LocalDateTime ngayTao;
 
-    @Column(name = "\"NguoiTao\"")
+    @Column(name = "nguoi_tao")
     private String nguoiTao;
 
-    @Column(name = "\"NgayCapNhat\"")
+    @UpdateTimestamp
+    @Column(name = "ngay_cap_nhat")
     private LocalDateTime ngayCapNhat;
 
-    @Column(name = "\"NguoiCapNhat\"")
+    @Column(name = "nguoi_cap_nhat")
     private String nguoiCapNhat;
 }

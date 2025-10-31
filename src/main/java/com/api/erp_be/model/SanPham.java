@@ -2,50 +2,51 @@ package com.api.erp_be.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 
 @Data
 @Entity
-@Table(name = "SAN_PHAM")
+@Table(name = "san_pham")
 public class SanPham {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "STT")
     private Integer stt;
 
-    @Column(name = "MaSanPham")
+    @Column(name = "ma_san_pham")
     private String maSanPham;
 
-    @Column(name = "TenSanPham")
+    @Column(name = "ten_san_pham")
     private String tenSanPham;
 
-    @Column(name = "NhomSanPham")
+    @Column(name = "nhom_san_pham")
     private String nhomSanPham;
 
-    @Column(name = "TrongLuong")
-    private Double trongLuong;
+    @Column(name = "trong_luong")
+    private BigDecimal trongLuong;
 
-    @Column(name = "DonVi_TrongLuong")
+    @Column(name = "don_vi_trong_luong")
     private String donViTrongLuong;
 
-    @Column(name = "NgayTao")
+    @CreationTimestamp
+    @Column(name = "ngay_tao", updatable = false)
     private LocalDateTime ngayTao;
 
-    @Column(name = "NguoiTao")
+    @Column(name = "nguoi_tao")
     private String nguoiTao;
 
-    @Column(name = "NgayCapNhat")
+    @UpdateTimestamp
+    @Column(name = "ngay_cap_nhat")
     private LocalDateTime ngayCapNhat;
 
-    @Column(name = "NguoiCapNhat")
+    @Column(name = "nguoi_cap_nhat")
     private String nguoiCapNhat;
 
-    @Column(name = "SoLuong_LenhSanXuat")
+    @Column(name = "so_luong_lenh_san_xuat")
     private Integer soLuongLenhSanXuat;
-
-    // Quan hệ 1-nhiều với DON_GIA
-    @OneToMany(mappedBy = "sanPham", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<DonGia> donGias;
 }
