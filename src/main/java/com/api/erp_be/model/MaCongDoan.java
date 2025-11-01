@@ -1,15 +1,16 @@
 package com.api.erp_be.model;
 
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "MA_CONG_DOAN")
+@Table(name = "ma_cong_doan") // đổi về chữ thường
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,25 +20,27 @@ public class MaCongDoan {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer stt;
 
-    @Column(name = "MaCongDoan")
+    @Column(name = "ma_cong_doan")
     private String maCongDoan;
 
-    @Column(name = "TenCongDoan")
+    @Column(name = "ten_cong_doan")
     private String tenCongDoan;
 
-    @Column(name = "ThoiGian_GiaCong")
+    @Column(name = "thoi_gian_gia_cong")
     private Double thoiGianGiaCong;
 
-    @Column(name = "NgayTao")
+    @CreationTimestamp
+    @Column(name = "ngay_tao")
     private LocalDateTime ngayTao;
 
-    @Column(name = "NguoiTao")
+    @Column(name = "nguoi_tao")
     private String nguoiTao;
 
-    @Column(name = "NgayCapNhat")
+    @UpdateTimestamp
+    @Column(name = "ngay_cap_nhat")
     private LocalDateTime ngayCapNhat;
 
-    @Column(name = "NguoiCapNhat")
+    @Column(name = "nguoi_cap_nhat")
     private String nguoiCapNhat;
-
 }
+
