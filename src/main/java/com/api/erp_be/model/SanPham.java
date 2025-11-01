@@ -28,7 +28,7 @@ public class SanPham {
     private String nhomSanPham;
 
     @Column(name = "trong_luong")
-    private BigDecimal trongLuong;
+    private Double trongLuong;
 
     @Column(name = "don_vi_trong_luong")
     private String donViTrongLuong;

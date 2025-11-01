@@ -10,7 +10,7 @@ public class SanPhamRequest {
     private String maSanPham;
     private String tenSanPham;
     private String nhomSanPham;
-    private BigDecimal trongLuong;
+    private Double trongLuong;
     private String donViTrongLuong;
     private LocalDateTime ngayTao;
     private String nguoiTao;
