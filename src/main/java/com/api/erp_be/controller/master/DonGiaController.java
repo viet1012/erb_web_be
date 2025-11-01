@@ -1,7 +1,7 @@
 package com.api.erp_be.controller.master;
 
-import com.api.erp_be.request.DonGiaRequest;
-import com.api.erp_be.response.DonGiaResponse;
+import com.api.erp_be.request.master.DonGiaRequest;
+import com.api.erp_be.response.master.DonGiaResponse;
 import com.api.erp_be.service.master.DonGiaService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

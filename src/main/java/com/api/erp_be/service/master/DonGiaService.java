@@ -5,8 +5,8 @@ import com.api.erp_be.mapper.master.DonGiaMapper;
 import com.api.erp_be.model.DonGia;
 import com.api.erp_be.repository.master.DonGiaRepository;
 import com.api.erp_be.repository.master.SanPhamRepository;
-import com.api.erp_be.request.DonGiaRequest;
-import com.api.erp_be.response.DonGiaResponse;
+import com.api.erp_be.request.master.DonGiaRequest;
+import com.api.erp_be.response.master.DonGiaResponse;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;

@@ -1,15 +1,16 @@
 package com.api.erp_be.model;
 
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "CHI_TIET")
+@Table(name = "chi_tiet") // đổi về chữ thường
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,35 +20,35 @@ public class ChiTiet {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer stt;
 
-    @Column(name = "MaChiTiet")
+    @Column(name = "ma_chi_tiet")
     private String maChiTiet;
 
-    @Column(name = "TenChiTiet")
+    @Column(name = "ten_chi_tiet")
     private String tenChiTiet;
 
-    @Column(name = "NhomChiTiet")
+    @Column(name = "nhom_chi_tiet")
     private String nhomChiTiet;
 
-    @Column(name = "DonVi_ChiTiet")
+    @Column(name = "don_vi_chi_tiet")
     private String donViChiTiet;
 
-    @Column(name = "TrongLuong")
+    @Column(name = "trong_luong")
     private Double trongLuong;
 
-    @Column(name = "DonVi_TrongLuong")
+    @Column(name = "don_vi_trong_luong")
     private String donViTrongLuong;
 
-    @Column(name = "NgayTao")
+    @CreationTimestamp
+    @Column(name = "ngay_tao")
     private LocalDateTime ngayTao;
 
-    @Column(name = "NguoiTao")
+    @Column(name = "nguoi_tao")
     private String nguoiTao;
 
-    @Column(name = "NgayCapNhat")
+    @UpdateTimestamp
+    @Column(name = "ngay_cap_nhat")
     private LocalDateTime ngayCapNhat;
 
-    @Column(name = "NguoiCapNhat")
+    @Column(name = "nguoi_cap_nhat")
     private String nguoiCapNhat;
-
-    // Getters và Setters
 }

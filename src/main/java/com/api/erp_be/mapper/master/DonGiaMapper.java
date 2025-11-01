@@ -1,7 +1,7 @@
 package com.api.erp_be.mapper.master;
 import com.api.erp_be.model.DonGia;
-import com.api.erp_be.request.DonGiaRequest;
-import com.api.erp_be.response.DonGiaResponse;
+import com.api.erp_be.request.master.DonGiaRequest;
+import com.api.erp_be.response.master.DonGiaResponse;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
