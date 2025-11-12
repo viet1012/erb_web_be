@@ -6,7 +6,7 @@ import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/sanpham")
@@ -16,6 +16,12 @@ public class SanPhamController {
 
     public SanPhamController(SanPhamService service) {
         this.service = service;
+    }
+
+    @GetMapping("/statistics")
+    public ResponseEntity<Map<String, Object>> getStatistics() {
+        Map<String, Object> stats = service.getStatistics();
+        return ResponseEntity.ok(stats);
     }
 
     @GetMapping

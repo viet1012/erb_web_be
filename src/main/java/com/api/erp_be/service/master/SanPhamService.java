@@ -248,23 +248,5 @@ public class SanPhamService {
         return result;
     }
 
-    // ============================================================
-    // 🔸 [3] /api/don-gia/import — Import file Excel đơn giá (placeholder)
-    // ============================================================
-    public void importDonGia(MultipartFile file) {
-        // TODO: parse Excel -> save DonGia entities
-        // validate MaSanPham có tồn tại không
-    }
 
-    // ============================================================
-    // 🔸 [4] /api/don-gia/active — Lấy đơn giá hiện hành
-    // ============================================================
-    // (API này sẽ nằm ở DonGiaService, nhưng có thể bạn sẽ gọi từ SanPhamService)
-    // gợi ý logic: repository.findByMaSanPhamAndEffectiveDateBefore(now)
-
-    // ============================================================
-    // 🔸 [5] /api/don-gia/lich-su — Lịch sử thay đổi giá
-    // ============================================================
-    // (Cũng nên nằm ở DonGiaService)
-    // Gợi ý: tạo bảng DON_GIA_HISTORY để ghi lại mỗi lần thay đổi đơn giá.
 }
