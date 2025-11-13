@@ -1,18 +1,16 @@
-FROM maven:latest AS build
-# Cập nhật gói và cài đặt OpenJDK 17 (nếu cần)
-RUN apt-get update && apt-get install -y openjdk-19-jdk
-# Sao chép mã nguồn vào thư mục /usr/src/app trong container
-COPY . /usr/src/app
-# Thiết lập thư mục làm việc mặc định
+# =========================
+# Stage 1: Build the project
+# =========================
+FROM maven:3.9.9-eclipse-temurin-17 AS build
 WORKDIR /usr/src/app
-# Sử dụng Maven để build project
-RUN mvn clean package
+COPY . .
+RUN mvn clean package -DskipTests
 
-# Stage 2: Chạy ứng dụng Java
-FROM openjdk:19-jdk-slim
-# Sao chép file JAR đã được build từ stage 1 vào stage 2
-COPY --from=build /usr/src/app/target/erb_web_be-0.0.1-SNAPSHOT.jar /app.jar
-# Mở cổng 8080
+# =========================
+# Stage 2: Run the application
+# =========================
+FROM eclipse-temurin:17-jdk-jammy
+WORKDIR /app
+COPY --from=build /usr/src/app/target/erb_web_be-0.0.1-SNAPSHOT.jar app.jar
 EXPOSE 8080
-# Đặt lệnh ENTRYPOINT để chạy ứng dụng
-ENTRYPOINT ["java", "-jar", "/app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
