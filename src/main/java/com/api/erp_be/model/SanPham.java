@@ -49,4 +49,7 @@ public class SanPham {
 
     @Column(name = "so_luong_lenh_san_xuat")
     private Integer soLuongLenhSanXuat;
+
+    @Column(name = "status")
+    private String status;
 }

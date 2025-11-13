@@ -12,10 +12,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 @Service
 @Transactional
@@ -29,61 +35,104 @@ public class SanPhamService {
         this.mapper = mapper;
     }
 
-    // 🔹 Lấy tất cả sản phẩm
+    // =========================
+    // CRUD
+    // =========================
+
+    public Page<SanPhamResponse> getPage(int page, int size, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<SanPham> pageResult = repository.findAll(pageable);
+
+        return pageResult.map(mapper::toResponse);
+    }
+
+    // Create
+    public SanPhamResponse create(SanPhamRequest req) {
+        SanPham sp = mapper.toEntity(req);
+
+        // Lấy số lượng sản phẩm hiện có (kể cả đã delete, nếu muốn bỏ qua thì thêm điều kiện)
+        long count = repository.count();
+
+        // Tự động tạo mã SP1, SP2, ...
+        String maTuDong = "SP" + (count + 1);
+        sp.setMaSanPham(maTuDong);
+        sp.setNgayTao(LocalDateTime.now());
+        sp.setStatus("ACTIVE");
+
+        repository.save(sp);
+        return mapper.toResponse(sp);
+    }
+
+
+    // Read all
     public List<SanPhamResponse> getAll() {
-        return repository.findAll()
+        return repository.findByStatus("ACTIVE")
                 .stream()
                 .map(mapper::toResponse)
                 .collect(Collectors.toList());
     }
 
-    // 🔹 Lấy theo ID
+    // Read by Id
     public SanPhamResponse getById(Integer id) {
         SanPham sp = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm với STT: " + id));
         return mapper.toResponse(sp);
     }
 
-    // 🔹 Tạo mới
-    public SanPhamResponse create(SanPhamRequest req) {
-        if (repository.existsByMaSanPham(req.getMaSanPham())) {
-            throw new RuntimeException("❌ Mã sản phẩm đã tồn tại!");
-        }
-        SanPham sp = mapper.toEntity(req);
-        sp.setNgayTao(LocalDateTime.now());
-        sp.setNguoiTao(req.getNguoiTao());
-        repository.save(sp);
-        return mapper.toResponse(sp);
-    }
-
-    // 🔹 Cập nhật
+    // Update
     public SanPhamResponse update(Integer id, SanPhamRequest req) {
         SanPham sp = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm với STT: " + id));
 
-        sp.setTenSanPham(req.getTenSanPham());
-        sp.setNhomSanPham(req.getNhomSanPham());
-        sp.setTrongLuong(req.getTrongLuong());
-        sp.setDonViTrongLuong(req.getDonViTrongLuong());
-        sp.setSoLuongLenhSanXuat(req.getSoLuongLenhSanXuat());
+        // Chỉ cập nhật nếu trường không null
+        if (req.getTenSanPham() != null) {
+            sp.setTenSanPham(req.getTenSanPham());
+        }
+        if (req.getNhomSanPham() != null) {
+            sp.setNhomSanPham(req.getNhomSanPham());
+        }
+        if (req.getTrongLuong() != null) {
+            sp.setTrongLuong(req.getTrongLuong());
+        }
+        if (req.getDonViTrongLuong() != null) {
+            sp.setDonViTrongLuong(req.getDonViTrongLuong());
+        }
+        if (req.getSoLuongLenhSanXuat() != null) {
+            sp.setSoLuongLenhSanXuat(req.getSoLuongLenhSanXuat());
+        }
+
         sp.setNgayCapNhat(LocalDateTime.now());
-        sp.setNguoiCapNhat(req.getNguoiCapNhat());
+
+        // Nên có kiểm tra null với nguoiCapNhat
+        if (req.getNguoiCapNhat() != null) {
+            sp.setNguoiCapNhat(req.getNguoiCapNhat());
+        }
 
         repository.save(sp);
         return mapper.toResponse(sp);
     }
 
-    // 🔹 Xóa
+    // Delete
     public void delete(Integer id) {
-        if (!repository.existsById(id)) {
-            throw new RuntimeException("Không tồn tại sản phẩm để xóa!");
-        }
-        repository.deleteById(id);
+        SanPham sp = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm với STT: " + id));
+
+        sp.setStatus("DELETE");
+        sp.setNgayCapNhat(LocalDateTime.now());
+
+        repository.save(sp);
     }
 
-    // ============================================================
-    // 🔸 [NEW] /api/san-pham/import — Import danh sách sản phẩm từ file Excel
-    // ============================================================
+
+
+    // =========================
+    // Import Excel
+    // =========================
     public List<SanPhamResponse> importFromExcel(MultipartFile file) {
         List<SanPhamResponse> importedList = new ArrayList<>();
 
@@ -95,15 +144,13 @@ public class SanPhamService {
                 throw new RuntimeException("❌ File Excel không có sheet nào!");
             }
 
-            // 👉 Bắt đầu đọc từ dòng 1 (bỏ qua header)
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 Row row = sheet.getRow(i);
                 if (row == null) continue;
 
                 String maSanPham = getCellValue(row.getCell(1));
-                if (maSanPham == null || maSanPham.isEmpty()) continue; // bỏ dòng trống
+                if (maSanPham == null || maSanPham.isEmpty()) continue;
 
-                // ⚠️ Kiểm tra trùng mã sản phẩm
                 if (repository.existsByMaSanPham(maSanPham)) {
                     System.out.println("⚠️ Bỏ qua: Mã sản phẩm đã tồn tại -> " + maSanPham);
                     continue;
@@ -121,7 +168,13 @@ public class SanPhamService {
                 }
 
                 sp.setDonViTrongLuong(getCellValue(row.getCell(5)));
-                sp.setSoLuongLenhSanXuat((int) parseDoubleSafe(getCellValue(row.getCell(10))));
+
+                try {
+                    sp.setSoLuongLenhSanXuat((int) parseDoubleSafe(getCellValue(row.getCell(10))));
+                } catch (Exception e) {
+                    sp.setSoLuongLenhSanXuat(0);
+                }
+
                 sp.setNgayTao(LocalDateTime.now());
                 sp.setNguoiTao("import");
 
@@ -136,9 +189,112 @@ public class SanPhamService {
         }
     }
 
-    // ============================================================
-    // 🔸 Hàm phụ trợ đọc giá trị ô Excel an toàn
-    // ============================================================
+
+    // =========================
+    // Export Excel
+    // =========================
+    public ByteArrayInputStream exportToExcel() {
+        List<SanPham> list = repository.findAll();
+
+        try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            Sheet sheet = workbook.createSheet("DanhSachSanPham");
+
+            CellStyle headerStyle = workbook.createCellStyle();
+            Font headerFont = workbook.createFont();
+            headerFont.setBold(true);
+            headerStyle.setFont(headerFont);
+            headerStyle.setAlignment(HorizontalAlignment.CENTER);
+
+            String[] headers = {
+                    "STT", "Mã Sản Phẩm", "Tên Sản Phẩm", "Nhóm Sản Phẩm",
+                    "Trọng Lượng", "Đơn Vị Trọng Lượng", "Ngày Tạo", "Người Tạo",
+                    "Ngày Cập Nhật", "Người Cập Nhật", "SL Lệnh SX"
+            };
+
+            Row headerRow = sheet.createRow(0);
+            for (int i = 0; i < headers.length; i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(headers[i]);
+                cell.setCellStyle(headerStyle);
+            }
+
+            int rowIdx = 1;
+            for (SanPham sp : list) {
+                Row row = sheet.createRow(rowIdx++);
+                row.createCell(0).setCellValue(sp.getStt() != null ? sp.getStt() : 0);
+                row.createCell(1).setCellValue(sp.getMaSanPham() != null ? sp.getMaSanPham() : "");
+                row.createCell(2).setCellValue(sp.getTenSanPham() != null ? sp.getTenSanPham() : "");
+                row.createCell(3).setCellValue(sp.getNhomSanPham() != null ? sp.getNhomSanPham() : "");
+                row.createCell(4).setCellValue(sp.getTrongLuong() != null ? sp.getTrongLuong() : 0);
+                row.createCell(5).setCellValue(sp.getDonViTrongLuong() != null ? sp.getDonViTrongLuong() : "");
+                row.createCell(6).setCellValue(sp.getNgayTao() != null ? sp.getNgayTao().toString() : "");
+                row.createCell(7).setCellValue(sp.getNguoiTao() != null ? sp.getNguoiTao() : "");
+                row.createCell(8).setCellValue(sp.getNgayCapNhat() != null ? sp.getNgayCapNhat().toString() : "");
+                row.createCell(9).setCellValue(sp.getNguoiCapNhat() != null ? sp.getNguoiCapNhat() : "");
+                row.createCell(10).setCellValue(sp.getSoLuongLenhSanXuat() != null ? sp.getSoLuongLenhSanXuat() : 0);
+            }
+
+            for (int i = 0; i < headers.length; i++) {
+                sheet.autoSizeColumn(i);
+            }
+
+            workbook.write(out);
+            return new ByteArrayInputStream(out.toByteArray());
+        } catch (IOException e) {
+            throw new RuntimeException("❌ Lỗi khi tạo file Excel: " + e.getMessage());
+        }
+    }
+
+    // =========================
+    // Search nâng cao
+    // =========================
+    public List<SanPhamResponse> search(String keyword, String nhomSanPham, Double minWeight, Double maxWeight) {
+        // Giả sử bạn có phương thức tìm kiếm trong repository theo các điều kiện
+        // Nếu chưa có, bạn cần viết query tùy chỉnh trong repository hoặc sử dụng Specification/Criteria
+
+        List<SanPham> list = repository.findAll(); // Thay bằng repo tìm kiếm thật
+
+        return list.stream()
+                .filter(sp -> (keyword == null || keyword.isEmpty() ||
+                        sp.getMaSanPham().toLowerCase().contains(keyword.toLowerCase()) ||
+                        sp.getTenSanPham().toLowerCase().contains(keyword.toLowerCase())))
+                .filter(sp -> (nhomSanPham == null || nhomSanPham.isEmpty() ||
+                        nhomSanPham.equalsIgnoreCase(sp.getNhomSanPham())))
+                .filter(sp -> (minWeight == null || sp.getTrongLuong() >= minWeight))
+                .filter(sp -> (maxWeight == null || sp.getTrongLuong() <= maxWeight))
+                .map(mapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
+
+    // =========================
+    // Thống kê (statistics)
+    // =========================
+    public Map<String, Object> getStatistics() {
+        List<SanPham> list = repository.findAll();
+
+        long total = list.size();
+        Map<String, Long> byGroup = list.stream()
+                .collect(Collectors.groupingBy(SanPham::getNhomSanPham, Collectors.counting()));
+
+        double avgWeight = list.stream()
+                .mapToDouble(sp -> sp.getTrongLuong() != null ? sp.getTrongLuong() : 0)
+                .average()
+                .orElse(0);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("total", total);
+        result.put("groupStats", byGroup);
+        result.put("averageWeight", avgWeight);
+
+        return result;
+    }
+
+
+    // =========================
+    // Helper methods
+    // =========================
+
     private String getCellValue(Cell cell) {
         if (cell == null) return "";
         switch (cell.getCellType()) {
@@ -166,87 +322,5 @@ public class SanPhamService {
             return 0.0;
         }
     }
-
-    // ============================================================
-    // 🔸 /api/san-pham/export — Xuất danh sách sản phẩm ra Excel
-    // ============================================================
-    public ByteArrayInputStream exportToExcel() {
-        List<SanPham> list = repository.findAll();
-
-        try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-            Sheet sheet = workbook.createSheet("DanhSachSanPham");
-
-            // 👉 1. Tạo style header
-            CellStyle headerStyle = workbook.createCellStyle();
-            Font headerFont = workbook.createFont();
-            headerFont.setBold(true);
-            headerStyle.setFont(headerFont);
-            headerStyle.setAlignment(HorizontalAlignment.CENTER);
-
-            // 👉 2. Header row
-            String[] headers = {
-                    "STT", "Mã Sản Phẩm", "Tên Sản Phẩm", "Nhóm Sản Phẩm",
-                    "Trọng Lượng", "Đơn Vị Trọng Lượng", "Ngày Tạo", "Người Tạo",
-                    "Ngày Cập Nhật", "Người Cập Nhật", "SL Lệnh SX"
-            };
-            Row headerRow = sheet.createRow(0);
-            for (int i = 0; i < headers.length; i++) {
-                Cell cell = headerRow.createCell(i);
-                cell.setCellValue(headers[i]);
-                cell.setCellStyle(headerStyle);
-            }
-
-            // 👉 3. Ghi dữ liệu sản phẩm
-            int rowIdx = 1;
-            for (SanPham sp : list) {
-                Row row = sheet.createRow(rowIdx++);
-                row.createCell(0).setCellValue(sp.getStt() != null ? sp.getStt() : 0);
-                row.createCell(1).setCellValue(sp.getMaSanPham() != null ? sp.getMaSanPham() : "");
-                row.createCell(2).setCellValue(sp.getTenSanPham() != null ? sp.getTenSanPham() : "");
-                row.createCell(3).setCellValue(sp.getNhomSanPham() != null ? sp.getNhomSanPham() : "");
-                row.createCell(4).setCellValue(sp.getTrongLuong() != null ? sp.getTrongLuong() : 0);
-                row.createCell(5).setCellValue(sp.getDonViTrongLuong() != null ? sp.getDonViTrongLuong() : "");
-                row.createCell(6).setCellValue(sp.getNgayTao() != null ? sp.getNgayTao().toString() : "");
-                row.createCell(7).setCellValue(sp.getNguoiTao() != null ? sp.getNguoiTao() : "");
-                row.createCell(8).setCellValue(sp.getNgayCapNhat() != null ? sp.getNgayCapNhat().toString() : "");
-                row.createCell(9).setCellValue(sp.getNguoiCapNhat() != null ? sp.getNguoiCapNhat() : "");
-                row.createCell(10).setCellValue(sp.getSoLuongLenhSanXuat() != null ? sp.getSoLuongLenhSanXuat() : 0);
-            }
-
-            // 👉 4. Auto-size cột
-            for (int i = 0; i < headers.length; i++) {
-                sheet.autoSizeColumn(i);
-            }
-
-            workbook.write(out);
-            return new ByteArrayInputStream(out.toByteArray());
-        } catch (IOException e) {
-            throw new RuntimeException("❌ Lỗi khi tạo file Excel: " + e.getMessage());
-        }
-    }
-
-    // ============================================================
-    // 🔸 [2] /api/san-pham/statistics — Thống kê sản phẩm
-    // ============================================================
-    public Map<String, Object> getStatistics() {
-        List<SanPham> list = repository.findAll();
-
-        long total = list.size();
-        Map<String, Long> byGroup = list.stream()
-                .collect(Collectors.groupingBy(SanPham::getNhomSanPham, Collectors.counting()));
-
-        double avgWeight = list.stream()
-                .mapToDouble(sp -> sp.getTrongLuong() != null ? sp.getTrongLuong() : 0)
-                .average()
-                .orElse(0);
-
-        Map<String, Object> result = new HashMap<>();
-        result.put("total", total);
-        result.put("groupStats", byGroup);
-        result.put("averageWeight", avgWeight);
-
-        return result;
-    }
-
 
 }

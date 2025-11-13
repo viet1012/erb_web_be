@@ -10,14 +10,11 @@ public class SanPhamMapper {
 
     public SanPham toEntity(SanPhamRequest dto) {
         SanPham entity = new SanPham();
-        entity.setMaSanPham(dto.getMaSanPham());
         entity.setTenSanPham(dto.getTenSanPham());
         entity.setNhomSanPham(dto.getNhomSanPham());
         entity.setTrongLuong(dto.getTrongLuong());
         entity.setDonViTrongLuong(dto.getDonViTrongLuong());
-        entity.setNgayTao(dto.getNgayTao());
         entity.setNguoiTao(dto.getNguoiTao());
-        entity.setNgayCapNhat(dto.getNgayCapNhat());
         entity.setNguoiCapNhat(dto.getNguoiCapNhat());
         entity.setSoLuongLenhSanXuat(dto.getSoLuongLenhSanXuat());
         return entity;
@@ -36,6 +33,7 @@ public class SanPhamMapper {
         res.setNgayCapNhat(entity.getNgayCapNhat());
         res.setNguoiCapNhat(entity.getNguoiCapNhat());
         res.setSoLuongLenhSanXuat(entity.getSoLuongLenhSanXuat());
+        res.setStatus(entity.getStatus());
         return res;
     }
 }

@@ -19,4 +19,5 @@ public class SanPhamResponse {
     private LocalDateTime ngayCapNhat;
     private String nguoiCapNhat;
     private Integer soLuongLenhSanXuat;
+    private String status;
 }

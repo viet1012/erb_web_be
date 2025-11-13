@@ -116,7 +116,7 @@ public class DonGiaService {
                 String maSanPham = getCellValue(row.getCell(0));
                 String maKhachHang = getCellValue(row.getCell(1));
                 String donGiaStr = getCellValue(row.getCell(2));
-                String donViSuDung = getCellValue(row.getCell(3));
+                Double donViSuDung = Double.valueOf(getCellValue(row.getCell(3)));
 
                 if (maSanPham.isEmpty()) continue;
                 if (!sanPhamRepository.existsByMaSanPham(maSanPham)) {
